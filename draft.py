@@ -113,18 +113,5 @@ class game:
 
         print("you lose! better luck next time. the solution to this one was ", self.solution)
 
-g = game("buggy")
-g.play()
-    
-    
-    
-    
-
-
-
-
-
-
-
-    
-    
+g = game("fjord")
+g.play() 

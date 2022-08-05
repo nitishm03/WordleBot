@@ -12,6 +12,8 @@ order:              very important - index dependent, only one value
 data structure:     5-wide list
 '''
 
+from statistics import mean
+
 class guesschecker:
 
     
@@ -88,22 +90,54 @@ class game:
             x = input("guess a 5-letter word: ")
             if self.checker.correct(x):
                 print("you win! you guessed the word in", self.turnCounter, "attempt(s)")
-                return
+                print()
+                return self.turnCounter
             self.player.play_guess(x, self.checker)
 
         print("you lose! better luck next time. the solution to this one was", self.solution)
+        print()
+        return -1
     
-    def auto_play(self, starter = "alert"):
+    def auto_play(self, x = "alert"):
         while(self.turnCounter < 6):
             self.turnCounter += 1
-            x = starter if self.turnCounter == 1 else list(self.player.answerSet)[0]
             print("bot is now guessing", x)
             if self.checker.correct(x):
                 print("bot wins! it guessed the word in", self.turnCounter, "attempt(s)")
+                print()
                 return self.turnCounter
             self.player.play_guess(x, self.checker)
+            x = list(self.player.answerSet)[0]
+
         print("bot loses! better luck next time. the solution to this one was", self.solution)
+        print()
+        return -1
 
+def test_play(solution):
+    g = game(solution)
+    return g.user_play()
 
-g = game("buggy")
-g.auto_play() 
+def test_autoplay(solution):
+    g = game(solution)
+    return g.auto_play()
+
+def statfinder():
+    statlist = set()
+    successes = 0
+    failures = 0
+    fhand = open('wordleanswers.txt')
+    for line in fhand:
+        print("word is now", line.rstrip())
+        n = game(line.rstrip()).auto_play()
+        if n > 0:
+            statlist.add(n)
+            successes += 1
+        else:
+            failures += 1
+
+    print("across all possible solutions, bot averaged", mean(statlist), "across", successes, "successful runs")
+    print("bot failed to solve the puzzle", failures, "times")
+
+#statfinder()
+#test_play("abbot")
+test_autoplay("abbey")

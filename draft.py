@@ -12,7 +12,9 @@ order:              very important - index dependent, only one value
 data structure:     5-wide list
 '''
 
+from logging import FileHandler
 from statistics import mean
+import string
 
 class guesschecker:
 
@@ -36,22 +38,29 @@ class guesschecker:
 
 class wordlebot:
     
-    grays = set()
-    yellows = [set() for i in range(5)]
-    greens = [' '] * 5
+    grays = None
+    yellows = None
+    greens = None
     answerSet = set()
+    frequencies = dict(zip(list(string.ascii_lowercase), [0] * 26))
 
     def __init__(self):
         fhand = open('wordleanswers.txt')
         for line in fhand:
             self.answerSet.add(line.rstrip())
+            for i in line.rstrip():
+                self.frequencies[i] += 1
         fhand.close()
-    
+        self.grays = set()
+        self.yellows = [set() for i in range(5)]
+        self.greens = [' '] * 5
+
     def play_guess(self, rawinput, checker):
+        #print("LENGTH OF ANSWER SET IS: ", len(self.answerSet))
         input = str(rawinput)
         feedback = checker.validate(input)
-        print(''.join([str(i) for i in feedback]))
-        initial = len(self.answerSet)
+        #print(''.join([str(i) for i in feedback]))
+        #initial = len(self.answerSet)
         for i in range(5):
             if feedback[i] == 0:
                 self.grays.add(input[i])
@@ -70,20 +79,20 @@ class wordlebot:
                 for word in self.answerSet.copy():
                     if word[i] != self.greens[i]:
                         self.answerSet.remove(word)
-        print(initial - len(self.answerSet))
-        print(self.answerSet)
-        print()
-            
+        #print(len(self.answerSet)) 
+        #print(self.answerSet)            
 class game:
     solution = ""
     checker = None
     player = None
     turnCounter = 0
+    
 
     def __init__(self, solution):
         self.checker = guesschecker(solution)
         self.player = wordlebot()
-    
+        self.turnCounter = 0
+        
     def user_play(self):
         while(self.turnCounter < 6):
             self.turnCounter += 1
@@ -101,17 +110,23 @@ class game:
     def auto_play(self, x = "alert"):
         while(self.turnCounter < 6):
             self.turnCounter += 1
-            print("bot is now guessing", x)
+            #print("bot is now guessing", x)
             if self.checker.correct(x):
-                print("bot wins! it guessed the word in", self.turnCounter, "attempt(s)")
-                print()
+                #print("bot wins! it guessed the word in", self.turnCounter, "attempt(s)")
+                #print()
                 return self.turnCounter
             self.player.play_guess(x, self.checker)
+            msf = sum([self.player.frequencies[i] for i in list(self.player.answerSet)[0]])
             x = list(self.player.answerSet)[0]
+            for word in self.player.answerSet:
+                if sum([self.player.frequencies[i] for i in word]) > msf:
+                    msf = sum([self.player.frequencies[i] for i in word])
+                    x = word
 
-        print("bot loses! better luck next time. the solution to this one was", self.solution)
-        print()
+        #print("bot loses! better luck next time. the solution to this one was", self.solution)
+        #print()
         return -1
+
 
 def test_play(solution):
     g = game(solution)
@@ -121,23 +136,26 @@ def test_autoplay(solution):
     g = game(solution)
     return g.auto_play()
 
-def statfinder():
-    statlist = set()
-    successes = 0
-    failures = 0
+def statFinder():
+    suc = 0
+    fail = 0
+    totalguess = 0
     fhand = open('wordleanswers.txt')
     for line in fhand:
-        print("word is now", line.rstrip())
-        n = game(line.rstrip()).auto_play()
-        if n > 0:
-            statlist.add(n)
-            successes += 1
+        x = test_autoplay(line.rstrip())
+        if x > 0:
+            suc +=1
+            totalguess += x
         else:
-            failures += 1
+            print(line.rstrip())
+            fail += 1
+    
+    print("number of successes:", suc)
+    print("average number of guesses:", totalguess/suc)
+    print("number of failures:", fail)
+    print("success rate", suc/(suc+fail))
+    print()
 
-    print("across all possible solutions, bot averaged", mean(statlist), "across", successes, "successful runs")
-    print("bot failed to solve the puzzle", failures, "times")
-
-#statfinder()
-#test_play("abbot")
-test_autoplay("abbey")
+statFinder()
+#test_play("yearn")
+#test_autoplay("baker")

@@ -12,26 +12,6 @@ order:              very important - index dependent, only one value
 data structure:     5-wide list
 '''
 
-'''
-import answer list as a set
-numGuess = 1 
-while numGuess < 6:
-    for i in range(5):
-        if feedback[i] == gray:
-            graySet.add(guess[i])
-            for word in answerSet:
-                if guess[i] in word:
-                    answerSet.remove(word)
-        elif feedback[i] == yellow:
-            yellowSet[i].add(guess[i])
-        else:
-            green[i] = guess[i]
-    if ''.join(green) == answer:
-        print("solved! the answer was ", answer)
-        return numGuess
-'''
-
-
 class guesschecker:
 
     
@@ -111,7 +91,7 @@ class game:
                 return
             self.player.play_guess(x, self.checker)
 
-        print("you lose! better luck next time. the solution to this one was ", self.solution)
+        print("you lose! better luck next time. the solution to this one was", self.solution)
 
-g = game("fjord")
+g = game("anode")
 g.play() 

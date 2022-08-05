@@ -82,16 +82,28 @@ class game:
         self.checker = guesschecker(solution)
         self.player = wordlebot()
     
-    def play(self):
+    def user_play(self):
         while(self.turnCounter < 6):
             self.turnCounter += 1
             x = input("guess a 5-letter word: ")
             if self.checker.correct(x):
-                print("you win! you guessed the word in", self.turnCounter, "attempt(s).")
+                print("you win! you guessed the word in", self.turnCounter, "attempt(s)")
                 return
             self.player.play_guess(x, self.checker)
 
         print("you lose! better luck next time. the solution to this one was", self.solution)
+    
+    def auto_play(self, starter = "alert"):
+        while(self.turnCounter < 6):
+            self.turnCounter += 1
+            x = starter if self.turnCounter == 1 else list(self.player.answerSet)[0]
+            print("bot is now guessing", x)
+            if self.checker.correct(x):
+                print("bot wins! it guessed the word in", self.turnCounter, "attempt(s)")
+                return self.turnCounter
+            self.player.play_guess(x, self.checker)
+        print("bot loses! better luck next time. the solution to this one was", self.solution)
 
-g = game("anode")
-g.play() 
+
+g = game("buggy")
+g.auto_play() 
